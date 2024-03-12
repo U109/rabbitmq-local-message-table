@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.zzz.producer.mapper.TransactionalMessageMapper">
+
+    <resultMap id="BaseResultMap" type="com.zzz.producer.entity.TransactionalMessage">
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="editTime" column="edit_time" jdbcType="TIMESTAMP"/>
+        <result property="deleted" column="deleted" jdbcType="TINYINT"/>
+        <result property="currentRetryTimes" column="current_retry_times" jdbcType="TINYINT"/>
+        <result property="maxRetryTimes" column="max_retry_times" jdbcType="TINYINT"/>
+        <result property="queueName" column="queue_name" jdbcType="VARCHAR"/>
+        <result property="exchangeName" column="exchange_name" jdbcType="VARCHAR"/>
+        <result property="exchangeType" column="exchange_type" jdbcType="VARCHAR"/>
+        <result property="routingKey" column="routing_key" jdbcType="VARCHAR"/>
+        <result property="businessModule" column="business_module" jdbcType="VARCHAR"/>
+        <result property="businessKey" column="business_key" jdbcType="VARCHAR"/>
+        <result property="nextScheduleTime" column="next_schedule_time" jdbcType="TIMESTAMP"/>
+        <result property="messageStatus" column="message_status" jdbcType="TINYINT"/>
+        <result property="initBackoff" column="init_backoff" jdbcType="BIGINT"/>
+        <result property="backoffFactor" column="backoff_factor" jdbcType="TINYINT"/>
+        <result property="txNo" column="tx_no" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id
+        ,create_time,edit_time,
+        deleted,current_retry_times,max_retry_times,
+        queue_name,exchange_name,exchange_type,
+        routing_key,business_module,business_key,
+        next_schedule_time,message_status,init_backoff,
+        backoff_factor,tx_no
+    </sql>
+    <update id="updateStatusSelective" parameterType="com.zzz.producer.entity.TransactionalMessage">
+        UPDATE transactional_message SET
+        <if test="currentRetryTimes != null">
+            current_retry_times = #{currentRetryTimes},
+        </if>
+        <if test="nextScheduleTime != null">
+            next_schedule_time = #{nextScheduleTime},
+        </if>
+        <if test="messageStatus != null">
+            message_status = #{messageStatus}
+        </if>
+        WHERE id = #{id}
+    </update>
+</mapper>
