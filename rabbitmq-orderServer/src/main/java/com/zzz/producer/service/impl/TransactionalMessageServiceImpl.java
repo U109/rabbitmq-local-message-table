@@ -38,10 +38,6 @@ public class TransactionalMessageServiceImpl extends ServiceImpl<TransactionalMe
 
     @Override
     public void sendTransactionalMessage(DefaultDestination destination, Order order) throws Exception {
-        String queueName = destination.queueName();
-        String exchangeName = destination.exchangeName();
-        String routingKey = destination.routingKey();
-        ExchangeType exchangeType = destination.exchangeType();
 
         String txNo = UUID.randomUUID().toString();
         Map<String, Object> message = new HashMap<>();
@@ -57,10 +53,10 @@ public class TransactionalMessageServiceImpl extends ServiceImpl<TransactionalMe
                 .build();
 
         TransactionalMessage record = new TransactionalMessage();
-        record.setQueueName(queueName);
-        record.setExchangeName(exchangeName);
-        record.setExchangeType(exchangeType.getType());
-        record.setRoutingKey(routingKey);
+        record.setQueueName(destination.queueName());
+        record.setExchangeName(destination.exchangeName());
+        record.setExchangeType(destination.exchangeType().getType());
+        record.setRoutingKey(destination.routingKey());
         record.setBusinessModule(txMessage.businessModule());
         record.setBusinessKey(txMessage.businessKey());
         record.setTxNo(txNo);

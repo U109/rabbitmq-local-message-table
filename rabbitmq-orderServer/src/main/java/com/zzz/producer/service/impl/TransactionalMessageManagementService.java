@@ -1,15 +1,11 @@
 package com.zzz.producer.service.impl;
 
-import com.zzz.producer.config.ConfirmService;
 import com.zzz.producer.entity.TransactionalMessage;
 import com.zzz.producer.entity.TransactionalMessageContent;
 import com.zzz.producer.mapper.TransactionalMessageContentMapper;
 import com.zzz.producer.mapper.TransactionalMessageMapper;
-import com.zzz.producer.service.TransactionalMessageContentService;
-import com.zzz.producer.service.TransactionalMessageService;
 import com.zzz.producer.support.message.TxMessageStatus;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.MessageDeliveryMode;
 import org.springframework.amqp.rabbit.connection.CorrelationData;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
@@ -76,10 +72,9 @@ public class TransactionalMessageManagementService {
         try {
             rabbitTemplate.setConfirmCallback(confirmService);
             rabbitTemplate.setReturnsCallback(confirmService);
-            rabbitTemplate.convertAndSend(record.getExchangeName(), record.getRoutingKey(), content, message -> {
-                message.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);
-                return message;
-            }, new CorrelationData(record.getTxNo()));
+
+            rabbitTemplate.convertAndSend(record.getExchangeName(), record.getRoutingKey(), content,
+                    new CorrelationData(record.getTxNo()));
             // 标记成功
             markSuccess(record);
         } catch (Exception e) {
