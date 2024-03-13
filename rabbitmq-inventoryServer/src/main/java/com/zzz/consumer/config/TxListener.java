@@ -30,6 +30,7 @@ public class TxListener {
             //重试消费，或投递到死信队列
             //注意：参数三是否运行重试，若设置为true，会出现死循环，你可以定义常量设置重试次数
             channel.basicNack(message.getMessageProperties().getDeliveryTag(), false, false);
+//            channel.basicAck();
             e.printStackTrace();
         }
     }
