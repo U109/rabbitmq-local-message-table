@@ -4,6 +4,7 @@ import cn.hutool.core.lang.UUID;
 import com.zzz.producer.entity.Order;
 import com.zzz.producer.enums.OrderEnum;
 import com.zzz.producer.mapper.OrderMapper;
+import com.zzz.producer.service.OrderService;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -17,7 +18,7 @@ import java.math.BigDecimal;
 public class RabbitmqProducerApplicationTests {
 
     @Resource
-    OrderMapper orderMapper;
+    OrderService orderService;
 
     @Test
     public void contextLoads() throws InterruptedException {
@@ -33,7 +34,11 @@ public class RabbitmqProducerApplicationTests {
         System.out.println(order.getOrderSn());
         System.out.println(order.getOrderStatus());
 
-        orderMapper.insert(order);
+
+        for (int i = 0; i < 10; i++) {
+            orderService.createOrder(order);
+        }
+
     }
 
 }

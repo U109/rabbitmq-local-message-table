@@ -1,0 +1,46 @@
+package com.zzz.producer.annotation;
+
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+/**
+ * @author: Zzz
+ * @date: 2024/3/13 17:47
+ * @description:
+ */
+@Aspect
+@Component
+public class RedisLockAspect {
+
+    @Autowired
+    private RedissonClient redissonClient;
+
+    @Around("@annotation(redisLock)")
+    public Object around(ProceedingJoinPoint joinPoint, RedisLock redisLock) throws Throwable {
+        // 生成锁 key，可以基于方法名和参数生成 MD5
+        String lockKey = generateLockKey(joinPoint, redisLock.value());
+        // 尝试获取锁
+        RLock lock = redissonClient.getLock(lockKey);
+        if (lock.isLocked()) { // 如果获取锁失败，直接返回
+            return null;
+        }
+        try {
+            // 获取锁成功，执行方法
+            return joinPoint.proceed();
+        } finally {
+            // 方法执行完毕，释放锁
+            lock.unlock();
+        }
+    }
+
+    private String generateLockKey(ProceedingJoinPoint joinPoint, String value) {
+        // 这里简单实现，实际情况可能会复杂一些
+        return value + joinPoint.getSignature().getName();
+    }
+
+}
