@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.concurrent.CountDownLatch;
 
 @SpringBootTest
 public class RabbitmqProducerApplicationTests {
@@ -22,23 +23,29 @@ public class RabbitmqProducerApplicationTests {
 
     @Test
     public void contextLoads() throws InterruptedException {
-        Order order = new Order();
-        order.setOrderSn(String.valueOf(UUID.randomUUID()));
-        order.setId(1);
-        order.setOrderStatus(OrderEnum.CREATE.getCode());
-        order.setMemberId(1);
-        order.setMemberUsername("zhangsan");
-        order.setTotalAmount(new BigDecimal("100.00"));
-        //商品ID
-        order.setProductId(1);
-        System.out.println(order.getOrderSn());
-        System.out.println(order.getOrderStatus());
 
 
         for (int i = 0; i < 10; i++) {
-            orderService.createOrder(order);
+            int finalI = i;
+            new Thread(() -> {
+                Order order = new Order();
+                order.setOrderSn(String.valueOf(UUID.randomUUID()));
+//        order.setId(1);
+                order.setOrderStatus(OrderEnum.CREATE.getCode());
+                order.setMemberId(1);
+                order.setMemberUsername("zhangsan");
+                order.setTotalAmount(new BigDecimal("100.00"));
+                //商品ID
+                order.setProductId(1);
+                orderService.createOrder(order);
+                Thread.currentThread().setName("线程--" + finalI);
+            }).start();
+
         }
 
+
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        countDownLatch.await();
     }
 
 }

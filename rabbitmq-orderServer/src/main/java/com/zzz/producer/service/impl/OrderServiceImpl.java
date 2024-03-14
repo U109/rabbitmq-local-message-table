@@ -42,8 +42,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderMapper, Order> implements
     public void createOrder(Order order) {
 
         log.info("执行createOrder");
+        System.out.println("执行createOrder");
         try {
-            Thread.sleep(1000);
+            Thread.sleep(3000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
