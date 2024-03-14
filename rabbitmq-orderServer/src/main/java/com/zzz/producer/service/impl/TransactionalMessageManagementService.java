@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import java.util.Map;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 /**
  * @author zhangzhongzhen wrote on 2024/3/12
@@ -109,5 +112,23 @@ public class TransactionalMessageManagementService {
         record.setMessageStatus(TxMessageStatus.FAIL.getStatus());
         record.setEditTime(LocalDateTime.now());
         messageMapper.updateStatusSelective(record);
+    }
+
+    public void processPendingCompensationRecords() {
+        // 这里预防把刚保存的消息也推送了
+        LocalDateTime max = LocalDateTime.now().plusSeconds(-DEFAULT_INIT_BACKOFF);
+        LocalDateTime min = max.plusHours(-1);
+        Map<Long, TransactionalMessage> collect = messageMapper.queryPendingCompensationRecords(min, max, TxMessageStatus.SUCCESS.getStatus(), LIMIT)
+                .stream()
+                .collect(Collectors.toMap(TransactionalMessage::getId, x -> x));
+        if (!collect.isEmpty()) {
+            StringJoiner joiner = new StringJoiner(",", "(", ")");
+            collect.keySet().forEach(x -> joiner.add(x.toString()));
+            messageContentMapper.queryByMessageIds(joiner.toString())
+                    .forEach(item -> {
+                        TransactionalMessage message = collect.get(item.getMessageId());
+                        sendMessageSync(message, item.getContent());
+                    });
+        }
     }
 }

@@ -2,6 +2,10 @@ package com.zzz.producer.mapper;
 
 import com.zzz.producer.entity.TransactionalMessageContent;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+import java.util.Map;
 
 /**
 * @author zhangzhongzhen
@@ -11,6 +15,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 */
 public interface TransactionalMessageContentMapper extends BaseMapper<TransactionalMessageContent> {
 
+    List<TransactionalMessageContent> queryByMessageIds(@Param("messageIds") String messageIds);
 }
 
 

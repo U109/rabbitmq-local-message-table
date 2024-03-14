@@ -46,4 +46,15 @@
         </if>
         WHERE id = #{id}
     </update>
+    <select id="queryPendingCompensationRecords" resultType="com.zzz.producer.entity.TransactionalMessage">
+        SELECT
+            <include refid="Base_Column_List"/>
+            FROM t_transactional_message
+        WHERE next_schedule_time &gt;= #{minScheduleTime}
+        AND next_schedule_time &lt;= #{maxScheduleTime}
+        AND message_status != #{status}
+        AND current_retry_times &lt; max_retry_times
+        LIMIT #{limit}
+    </select>
+
 </mapper>

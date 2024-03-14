@@ -13,4 +13,7 @@
     <sql id="Base_Column_List">
         id,message_id,content
     </sql>
+    <select id="queryByMessageIds" resultType="com.zzz.producer.entity.TransactionalMessageContent">
+        SELECT * FROM t_transactional_message_content WHERE message_id IN #{messageIds}
+    </select>
 </mapper>
