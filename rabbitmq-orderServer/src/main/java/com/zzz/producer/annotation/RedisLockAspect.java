@@ -9,6 +9,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -46,7 +47,7 @@ public class RedisLockAspect {
 
     private String generateLockKey(ProceedingJoinPoint joinPoint, String value) {
         // 这里简单实现，实际情况可能会复杂一些
-        return value + joinPoint.getSignature().getName();
+        return value + joinPoint.getSignature().getName() + Arrays.toString(joinPoint.getArgs());
     }
 
 }
